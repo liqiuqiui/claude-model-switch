@@ -4,8 +4,7 @@
 # 功能:
 #   - 在 macOS 和 Ubuntu 上运行 bats 测试
 #   - 在 Windows 上运行 Pester 测试
-#   - 生成测试覆盖率报告
-#   - 上传覆盖率到 Codecov
+#   - 生成并上传测试覆盖率报告
 # ============================================
 
 name: 测试
@@ -15,6 +14,10 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ============================================
@@ -174,22 +177,3 @@ jobs:
             echo "❌ 语法检查失败" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # ============================================
-  # 上传 codecov token (需要单独配置)
-  # ============================================
-  codecov:
-    name: Upload coverage to Codecov
-    runs-on: ubuntu-latest
-    needs: [bash-tests, powershell-tests]
-    if: always()
-
-    steps:
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          files: ./coverage/*,./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          verbose: true

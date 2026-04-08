@@ -1,8 +1,7 @@
+#!/usr/bin/env bats
 # ============================================
 # install.sh 测试用例
 # ============================================
-
-#!/usr/bin/env bats
 
 # 测试前设置
 setup() {
@@ -141,12 +140,12 @@ EOF
 # ============================================
 
 @test "缺少 curl 和 wget 时报错" {
-    # 模拟缺少下载工具
-    export PATH="$TEST_DIR/no-tools"
-
-    # 验证检测逻辑
-    ! command -v curl &>/dev/null || true
-    ! command -v wget &>/dev/null || true
+    # 在子 shell 中修改 PATH，避免污染 teardown 的执行环境
+    (
+        export PATH="$TEST_DIR/no-tools"
+        ! command -v curl &>/dev/null
+        ! command -v wget &>/dev/null
+    )
 }
 
 # ============================================
