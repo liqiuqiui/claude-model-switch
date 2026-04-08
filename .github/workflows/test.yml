@@ -40,8 +40,8 @@ jobs:
           if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             brew install bats-core kcov
           else
-            # apt 版本过旧（1.2.x），不支持中文测试名，改用 npm 安装最新版
-            npm install -g bats
+            # Ubuntu 环境下安装 bats
+            sudo apt-get update && sudo apt-get install -y bats
           fi
 
       - name: 运行 bats 测试
@@ -171,4 +171,3 @@ jobs:
           else
             echo "❌ 语法检查失败" >> $GITHUB_STEP_SUMMARY
           fi
-

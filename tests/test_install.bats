@@ -33,7 +33,7 @@ teardown() {
 # 测试：检测 shell 配置文件
 # ============================================
 
-@test "检测 zsh 配置文件路径" {
+@test "detect_zsh_config_path" { # 检测 zsh 配置文件路径
     export ZSH_VERSION="5.8"
     unset BASH_VERSION
 
@@ -43,7 +43,7 @@ teardown() {
     [ "$result" = "$HOME/.zshrc" ]
 }
 
-@test "检测 bash 配置文件路径" {
+@test "detect_bash_config_path" { # 检测 bash 配置文件路径
     export BASH_VERSION="5.0"
     unset ZSH_VERSION
 
@@ -53,7 +53,7 @@ teardown() {
     [ "$result" = "$HOME/.bashrc" ]
 }
 
-@test "检测未知 shell 时使用 .profile" {
+@test "detect_unknown_shell_uses_profile" { # 检测未知 shell 时使用 .profile
     unset ZSH_VERSION
     unset BASH_VERSION
 
@@ -67,7 +67,7 @@ teardown() {
 # 测试：创建安装目录
 # ============================================
 
-@test "创建安装目录成功" {
+@test "create_install_dir_success" { # 创建安装目录成功
     # 运行安装脚本（模拟模式）
     export REPO_URL="file://$SCRIPT_DIR"
 
@@ -81,7 +81,7 @@ teardown() {
 # 测试：首次安装
 # ============================================
 
-@test "首次安装添加配置到 shell rc" {
+@test "first_install_adds_to_shell_rc" { # 首次安装添加配置到 shell rc
     # 准备空的 shell rc 文件
     echo "# 原有配置" > "$SHELL_RC"
 
@@ -106,7 +106,7 @@ EOF
 # 测试：更新安装
 # ============================================
 
-@test "更新安装时移除旧配置" {
+@test "update_install_removes_old_config" { # 更新安装时移除旧配置
     # 准备已安装的 shell rc 文件
     MARKER_START="# Claude 模型切换器 - 开始"
     MARKER_END="# Claude 模型切换器 - 结束"
@@ -139,7 +139,7 @@ EOF
 # 测试：错误处理
 # ============================================
 
-@test "缺少 curl 和 wget 时报错" {
+@test "missing_curl_wget_error" { # 缺少 curl 和 wget 时报错
     # 在子 shell 中修改 PATH，避免污染 teardown 的执行环境
     (
         export PATH="$TEST_DIR/no-tools"
@@ -152,11 +152,11 @@ EOF
 # 测试：脚本执行权限
 # ============================================
 
-@test "install.sh 具有执行权限" {
+@test "install_script_executable" { # install.sh 具有执行权限
     # 检查脚本是否存在
     [ -f "$SCRIPT_DIR/install.sh" ]
 }
 
-@test "claude-switch-model.sh 文件存在" {
+@test "main_script_exists" { # claude-switch-model.sh 文件存在
     [ -f "$SCRIPT_DIR/claude-switch-model.sh" ]
 }
