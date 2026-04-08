@@ -4,7 +4,7 @@
 # ============================================
 
 setup() {
-  SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/../unix" && pwd)"
+  SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/../../unix" && pwd)"
 
   # 隔离配置目录，避免污染真实环境
   export HOME="$(mktemp -d)"

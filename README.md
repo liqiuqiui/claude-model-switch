@@ -70,18 +70,26 @@ claude-switcher --use zhipu
   --list,  -l                            列出所有已配置的服务商
   --use    <id>                          切换到指定服务商并更新环境变量
   --add    <id>                          交互式添加新服务商
+  --template <id>                        使用预设模板添加服务商（支持：openai, zhipu, deepseek, anthropic）
   --remove <id>                          删除指定服务商
-  --set-token [--provider <id>]          为服务商设置 API Token
+  --set-token [--provider <id>]          为服务商设置 API Token（支持明文/环境变量/加密存储）
   --set-model  --haiku  <model>          配置服务商各层级模型（可组合使用）
                --sonnet <model>
                --opus   <model>
               [--provider <id>]
+  --export <file>                         导出配置到文件（tar.gz格式）
+  --import <file>                         从文件导入配置
+  --validate                             验证当前配置的有效性
   --uninstall                            卸载 claude-switcher
 ```
 
 ### 示例
 
 ```bash
+# 使用预设模板添加服务商（快速配置）
+claude-switcher --template zhipu
+claude-switcher --template openai
+
 # 添加智谱 BigModel 服务商（交互式引导）
 claude-switcher --add zhipu
 
@@ -94,7 +102,7 @@ claude-switcher
 # 列出所有服务商
 claude-switcher --list
 
-# 为当前服务商设置 Token
+# 为当前服务商设置 Token（支持三种存储方式）
 claude-switcher --set-token
 
 # 为指定服务商设置 Token
@@ -108,6 +116,15 @@ claude-switcher --set-model --sonnet glm-4
 
 # 为指定服务商配置模型
 claude-switcher --set-model --haiku glm-4-flash --provider zhipu
+
+# 验证配置有效性
+claude-switcher --validate
+
+# 导出配置（备份）
+claude-switcher --export my-config.tar.gz
+
+# 导入配置（恢复）
+claude-switcher --import my-config.tar.gz
 
 # 删除服务商
 claude-switcher --remove zhipu
@@ -131,13 +148,17 @@ claude-switcher --uninstall
     ...
 ```
 
-每个服务商配置文件格式：
+每个服务商配置文件格式（版本2）：
 
 ```bash
+# Claude Switcher Config File
+CONFIG_VERSION=2
+
 PROVIDER_NAME="智谱 BigModel"
 BASE_URL="https://open.bigmodel.cn/api/anthropic"
 TOKEN_TYPE="plain"         # plain = 明文 | env = 读取环境变量
-TOKEN="sk-xxxxxx"          # plain 时为 token 值，env 时为变量名
+TOKEN="sk-xxxxxx"          # 明文时的 token 值
+TOKEN_ENCRYPTED="false"    # 是否加密存储（true/false）
 HAIKU_MODEL="glm-4-flash"
 SONNET_MODEL="glm-4"
 OPUS_MODEL="glm-5"
@@ -168,18 +189,54 @@ claude-switcher --uninstall
 
 ---
 
+## 新功能特性（v2.0）
+
+### 🔐 增强的安全性
+- **加密存储**: 支持 Token 加密存储，配置文件权限自动设为 600
+- **环境变量检查**: 设置 Token 时会检查环境变量是否存在
+- **改进的权限管理**: 所有配置文件都受严格权限保护
+
+### 📦 预设服务商模板
+快速添加常用服务商配置：
+```bash
+# 使用预设模板
+claude-switcher --template zhipu    # 智谱 BigModel
+claude-switcher --template openai   # OpenAI
+claude-switcher --template deepseek # DeepSeek
+claude-switcher --template anthropic # Anthropic
+```
+
+### 💾 配置备份与恢复
+- **导出配置**: `claude-switcher --export my-config.tar.gz`
+- **导入配置**: `claude-switcher --import my-config.tar.gz`
+- **自动备份**: 导入前自动备份现有配置
+
+### ✅ 配置验证
+- **验证命令**: `claude-switcher --validate`
+- **自动检查**: 验证 Token 设置、环境变量、配置完整性
+- **详细报告**: 显示具体问题和建议
+
+### 📝 版本管理
+- 配置文件自动添加版本标记
+- 向后兼容旧格式配置
+- 支持配置迁移
+
+---
+
 ## 开发与测试
 
 ```bash
 # 运行 Unix 测试（需要 bats-core）
-bats tests/test_install.bats
-bats tests/test_switcher.bats
+bats tests/unix/test_install.bats
+bats tests/unix/test_switcher.bats
+bats tests/unix/test_new_features.bats
 ```
 
 ```powershell
 # 运行 Windows 测试（需要 Pester）
 Install-Module -Name Pester -Force -Scope CurrentUser
-Invoke-Pester -Path tests/
+Invoke-Pester -Path tests/windows/
+Invoke-Pester -Path tests/windows/test_new_features.ps1
 ```
 
 CI 在 push / PR 时自动运行：macOS、Ubuntu 的 bats 测试，Windows 的 Pester 测试，以及所有脚本的语法检查。

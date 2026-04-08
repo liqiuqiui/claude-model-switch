@@ -46,8 +46,9 @@ jobs:
 
       - name: 运行 bats 测试
         run: |
-          bats tests/test_install.bats
-          bats tests/test_switcher.bats
+          bats tests/unix/test_install.bats
+          bats tests/unix/test_switcher.bats
+          bats tests/unix/test_new_features.bats
 
       - name: 生成覆盖率报告
         if: matrix.os == 'macos-latest'
@@ -85,13 +86,23 @@ jobs:
         shell: powershell
         run: |
           $configuration = New-PesterConfiguration
-          $configuration.Run.Path = "tests/"
+          $configuration.Run.Path = "tests/windows/"
           $configuration.Output.Verbosity = "Detailed"
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = "test-results.xml"
           $configuration.CodeCoverage.Enabled = $true
           $configuration.CodeCoverage.Path = "windows/*.ps1"
           $configuration.CodeCoverage.OutputPath = "coverage.xml"
+          Invoke-Pester -Configuration $configuration
+
+      - name: 运行新功能测试
+        shell: powershell
+        run: |
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = "tests/windows/test_new_features.ps1"
+          $configuration.Output.Verbosity = "Detailed"
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputPath = "test-results-new.xml"
           Invoke-Pester -Configuration $configuration
 
       - name: 上传测试结果
