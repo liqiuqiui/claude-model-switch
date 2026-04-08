@@ -34,12 +34,12 @@ function Write-Success {
     Write-Host $Message -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-ColorWarning {
     param([string]$Message)
     Write-Host $Message -ForegroundColor Yellow
 }
 
-function Write-Error {
+function Write-ColorError {
     param([string]$Message)
     Write-Host "错误: $Message" -ForegroundColor Red
 }
@@ -78,14 +78,14 @@ try {
     Write-Host "脚本下载完成"
 }
 catch {
-    Write-Error "脚本下载失败: $_"
+    Write-ColorError "脚本下载失败: $_"
     Write-Host "请检查网络连接或仓库地址"
     exit 1
 }
 
 # 验证下载是否成功
 if (-not (Test-Path $ScriptPath)) {
-    Write-Error "脚本下载失败，请检查网络连接或仓库地址"
+    Write-ColorError "脚本下载失败，请检查网络连接或仓库地址"
     exit 1
 }
 
@@ -109,9 +109,9 @@ $ProfileContent = Get-Content $ProfilePath -Raw -ErrorAction SilentlyContinue
 
 # 检查是否已安装，如果已安装则先移除旧版本
 if ($ProfileContent -match [regex]::Escape($MarkerStart)) {
-    Write-Warning "检测到已安装旧版本，正在更新..."
+    Write-ColorWarning "检测到已安装旧版本，正在更新..."
     # 删除旧的安装配置
-    $Pattern = "$([regex]::Escape($MarkerStart))[sS]*?$([regex]::Escape($MarkerEnd))"
+    $Pattern = "(?s)$([regex]::Escape($MarkerStart))[\s\S]*?$([regex]::Escape($MarkerEnd))"
     $ProfileContent = $ProfileContent -replace $Pattern, ""
 }
 
@@ -150,5 +150,5 @@ Write-Host "  csm    - Claude-SwitchModel"
 Write-Host "  clm    - Claude-ListModels"
 Write-Host "  cst    - Claude-SetToken"
 Write-Host ""
-Write-Warning "注意：首次使用前需要设置 ANTHROPIC_AUTH_TOKEN 环境变量"
-Write-Warning "可以通过 Claude-SetToken 命令或直接设置 `$env:ANTHROPIC_AUTH_TOKEN"
+Write-ColorWarning "注意：首次使用前需要设置 ANTHROPIC_AUTH_TOKEN 环境变量"
+Write-ColorWarning "可以通过 Claude-SetToken 命令或直接设置 `$env:ANTHROPIC_AUTH_TOKEN"

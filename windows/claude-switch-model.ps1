@@ -31,8 +31,8 @@ function Claude-SwitchModel {
     $Provider = ""
 
     switch -Regex ($ModelName) {
-        # 智谱 AI BigModel 服务
-        "^glm-" {
+        # 智谱 AI BigModel 服务（大小写均支持）
+        "(?i)^glm-" {
             $Provider = "智谱 BigModel"
             $BaseUrl = "https://open.bigmodel.cn/api/anthropic"
             break

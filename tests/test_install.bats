@@ -35,25 +35,33 @@ teardown() {
 # ============================================
 
 @test "检测 zsh 配置文件路径" {
-    # 设置 zsh 环境
     export ZSH_VERSION="5.8"
+    unset BASH_VERSION
 
-    # 运行检测逻辑
-    source "$SCRIPT_DIR/install.sh" --dry-run 2>/dev/null || true
+    source "$SCRIPT_DIR/install.sh"
+    result=$(detect_shell_rc)
 
-    # 验证配置文件路径
-    [ -f "$MOCK_HOME/.zshrc" ] || [ -f "$MOCK_HOME/.bashrc" ] || [ -f "$MOCK_HOME/.profile" ]
+    [ "$result" = "$HOME/.zshrc" ]
 }
 
 @test "检测 bash 配置文件路径" {
-    # 设置 bash 环境
     export BASH_VERSION="5.0"
     unset ZSH_VERSION
 
-    source "$SCRIPT_DIR/install.sh" --dry-run 2>/dev/null || true
+    source "$SCRIPT_DIR/install.sh"
+    result=$(detect_shell_rc)
 
-    # 验证配置文件存在
-    [ -f "$MOCK_HOME/.bashrc" ] || [ -f "$MOCK_HOME/.profile" ]
+    [ "$result" = "$HOME/.bashrc" ]
+}
+
+@test "检测未知 shell 时使用 .profile" {
+    unset ZSH_VERSION
+    unset BASH_VERSION
+
+    source "$SCRIPT_DIR/install.sh"
+    result=$(detect_shell_rc)
+
+    [ "$result" = "$HOME/.profile" ]
 }
 
 # ============================================

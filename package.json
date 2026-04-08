@@ -1,13 +1,22 @@
 {
   "name": "claude-model-switch",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "快速切换 Claude Code 使用的模型，支持 macOS、Linux 和 Windows",
+  "main": "README.md",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Run bats tests: bats tests/\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "claude",
+    "model-switch",
+    "ai",
+    "automation"
+  ],
+  "author": "liqiuqiu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liqiuqiui/claude-model-switch.git"
+  },
   "type": "commonjs"
 }

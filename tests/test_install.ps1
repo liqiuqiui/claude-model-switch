@@ -148,7 +148,7 @@ Describe "更新安装配置" {
 
         # 读取并移除旧配置
         $Content = Get-Content $TestProfile -Raw
-        $Pattern = "$([regex]::Escape($MarkerStart))[sS]*?$([regex]::Escape($MarkerEnd))"
+        $Pattern = "(?s)$([regex]::Escape($MarkerStart))[\s\S]*?$([regex]::Escape($MarkerEnd))"
         $Content = $Content -replace $Pattern, ""
         $Content | Set-Content $TestProfile
 
