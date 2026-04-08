@@ -5,6 +5,7 @@
 #   - 在 macOS 和 Ubuntu 上运行 bats 测试
 #   - macOS 上额外生成 bash 覆盖率报告（kcov）
 #   - 在 Windows 上运行 Pester 测试（含覆盖率上传）
+#   - 对所有脚本进行语法检查
 # ============================================
 
 name: 测试
@@ -40,20 +41,19 @@ jobs:
           if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             brew install bats-core kcov
           else
-            # Ubuntu 环境下安装 bats
             sudo apt-get update && sudo apt-get install -y bats
           fi
 
       - name: 运行 bats 测试
         run: |
           bats tests/test_install.bats
-          bats tests/test_switch_model.bats
+          bats tests/test_switcher.bats
 
       - name: 生成覆盖率报告
         if: matrix.os == 'macos-latest'
         run: |
           mkdir -p coverage
-          kcov coverage bats tests/test_switch_model.bats
+          kcov coverage bats tests/test_switcher.bats
 
       - name: 上传覆盖率报告
         if: matrix.os == 'macos-latest'
@@ -125,19 +125,22 @@ jobs:
         run: |
           echo "检查 unix/install.sh..."
           bash -n unix/install.sh
-          echo "检查 unix/claude-switch-model.sh..."
-          bash -n unix/claude-switch-model.sh
+          echo "检查 unix/claude-switcher.sh..."
+          bash -n unix/claude-switcher.sh
+          echo "Bash 语法检查通过"
 
       - name: 检查 PowerShell 脚本语法
         shell: pwsh
         run: |
           Write-Host "检查 windows/install.ps1..."
-          $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content windows/install.ps1 -Raw), [ref]$null)
+          $null = [System.Management.Automation.PSParser]::Tokenize(
+              (Get-Content windows/install.ps1 -Raw), [ref]$null)
 
-          Write-Host "检查 windows/claude-switch-model.ps1..."
-          $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content windows/claude-switch-model.ps1 -Raw), [ref]$null)
+          Write-Host "检查 windows/claude-switcher.ps1..."
+          $null = [System.Management.Automation.PSParser]::Tokenize(
+              (Get-Content windows/claude-switcher.ps1 -Raw), [ref]$null)
 
-          Write-Host "语法检查通过"
+          Write-Host "PowerShell 语法检查通过"
 
   # ============================================
   # 测试摘要
@@ -149,7 +152,7 @@ jobs:
     if: always()
 
     steps:
-      - name: 检查测试结果
+      - name: 输出测试结果摘要
         run: |
           echo "## 测试结果摘要" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

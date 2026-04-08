@@ -1,201 +1,185 @@
-# Claude 模型切换器
+# Claude Switcher
 
-快速切换 Claude Code 使用的模型，支持 macOS、Linux 和 Windows。
+一个跨平台命令行工具，用于快速管理并切换 Claude Code 所使用的底层模型和服务商。
+
+支持 **macOS / Linux（Bash/Zsh）** 和 **Windows（PowerShell）**。
+
+---
 
 ## 功能特性
 
-- 🔄 快速切换 Claude Code 使用的模型
-- 🖥️ 跨平台支持（macOS、Linux、Windows）
-- 🔧 易于扩展新的服务商
-- 📦 简单的一键安装
+- **统一入口**：所有操作通过 `claude-switcher` 单命令 + 参数完成
+- **本地配置文件**：服务商信息持久化存储在 `~/.claude-switcher/`
+- **多服务商管理**：添加、切换、删除任意服务商
+- **灵活 Token 存储**：支持明文存储（权限 600）和引用环境变量两种方式
+- **分层模型配置**：为每个服务商单独配置 Haiku / Sonnet / Opus 三个层级的模型
+- **安全卸载**：提供卸载命令，可选是否同时清除配置文件
+
+---
 
 ## 安装
 
-### macOS / Linux (Bash/Zsh)
+### macOS / Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/liqiuqiui/claude-model-switch/main/unix/install.sh | bash
 ```
 
-安装后执行：
+安装完成后按提示执行：
 
 ```bash
-source ~/.zshrc  # 如果使用 zsh
-# 或
-source ~/.bashrc # 如果使用 bash
+# 第 1 步：重新加载 shell 配置
+source ~/.zshrc   # 或 ~/.bashrc
+
+# 第 2 步：添加服务商（交互式）
+claude-switcher --add zhipu
+
+# 第 3 步：切换到该服务商
+claude-switcher --use zhipu
 ```
 
-### Windows (PowerShell)
+### Windows（PowerShell）
 
 ```powershell
 iwr -useb https://raw.githubusercontent.com/liqiuqiui/claude-model-switch/main/windows/install.ps1 | iex
 ```
 
-安装后重新打开 PowerShell 或执行：
+安装完成后：
 
 ```powershell
+# 第 1 步：重新加载 profile
 . $PROFILE
+
+# 第 2 步：添加服务商（交互式）
+claude-switcher --add zhipu
+
+# 第 3 步：切换到该服务商
+claude-switcher --use zhipu
 ```
 
-## 使用方法
+---
 
-### 切换模型
+## 命令参考
+
+```
+用法: claude-switcher [选项]
+
+选项:
+  (无参数)                               显示当前激活的配置状态
+  --help,  -h                            显示帮助
+  --list,  -l                            列出所有已配置的服务商
+  --use    <id>                          切换到指定服务商并更新环境变量
+  --add    <id>                          交互式添加新服务商
+  --remove <id>                          删除指定服务商
+  --set-token [--provider <id>]          为服务商设置 API Token
+  --set-model  --haiku  <model>          配置服务商各层级模型（可组合使用）
+               --sonnet <model>
+               --opus   <model>
+              [--provider <id>]
+  --uninstall                            卸载 claude-switcher
+```
+
+### 示例
 
 ```bash
-# 完整命令
-claude-switch-model glm-5
+# 添加智谱 BigModel 服务商（交互式引导）
+claude-switcher --add zhipu
 
-# 简化命令
-csm glm-5
+# 切换到指定服务商
+claude-switcher --use zhipu
+
+# 查看当前状态和环境变量
+claude-switcher
+
+# 列出所有服务商
+claude-switcher --list
+
+# 为当前服务商设置 Token
+claude-switcher --set-token
+
+# 为指定服务商设置 Token
+claude-switcher --set-token --provider zhipu
+
+# 配置三个层级的模型（当前服务商）
+claude-switcher --set-model --haiku glm-4-flash --sonnet glm-4 --opus glm-5
+
+# 仅修改 sonnet 层级（其他层级不变）
+claude-switcher --set-model --sonnet glm-4
+
+# 为指定服务商配置模型
+claude-switcher --set-model --haiku glm-4-flash --provider zhipu
+
+# 删除服务商
+claude-switcher --remove zhipu
+
+# 卸载（提示是否同时删除配置文件）
+claude-switcher --uninstall
 ```
 
-### 列出可用模型
+---
+
+## 配置文件结构
+
+安装后，配置文件存储在：
+
+```
+~/.claude-switcher/
+  config.conf           # 当前激活的服务商
+  providers/
+    zhipu.conf          # 每个服务商一个文件（权限 600）
+    deepseek.conf
+    ...
+```
+
+每个服务商配置文件格式：
 
 ```bash
-# 完整命令
-claude-list-models
-
-# 简化命令
-clm
+PROVIDER_NAME="智谱 BigModel"
+BASE_URL="https://open.bigmodel.cn/api/anthropic"
+TOKEN_TYPE="plain"         # plain = 明文 | env = 读取环境变量
+TOKEN="sk-xxxxxx"          # plain 时为 token 值，env 时为变量名
+HAIKU_MODEL="glm-4-flash"
+SONNET_MODEL="glm-4"
+OPUS_MODEL="glm-5"
 ```
 
-### 设置 API Token
+---
 
-```bash
-# 完整命令
-claude-set-token your-api-token
+## Token 存储方式
 
-# 简化命令
-cst your-api-token
-```
+添加或更新 Token 时，可选择两种存储方式：
 
-### Windows PowerShell 命令
+| 方式 | 说明 | 适合场景 |
+|------|------|----------|
+| **明文存储** | Token 写入配置文件，文件权限自动设为 600 | 个人机器，追求简便 |
+| **引用环境变量** | 配置文件只存变量名，运行时从环境变量读取 | 团队机器，追求安全 |
 
-```powershell
-# 切换模型
-Claude-SwitchModel glm-5
-csm glm-5  # 别名
-
-# 列出模型
-Claude-ListModels
-clm  # 别名
-
-# 设置 Token
-Claude-SetToken your-api-token
-cst your-api-token  # 别名
-```
-
-## 支持的模型
-
-| 模型 | 服务商 |
-|------|--------|
-| glm-5 | 智谱 BigModel |
-| glm-4 | 智谱 BigModel |
-
-## 添加新服务商
-
-编辑 `unix/claude-switch-model.sh`（或 `windows/claude-switch-model.ps1`），在 `case` 语句中添加新的服务商配置：
-
-```bash
-# Bash 示例
-case "$model" in
-  glm-*)
-    provider="智谱 BigModel"
-    base_url="https://open.bigmodel.cn/api/anthropic"
-    ;;
-
-  # 添加新服务商
-  deepseek-*)
-    provider="DeepSeek"
-    base_url="https://api.deepseek.com"
-    ;;
-esac
-```
-
-## 命令别名
-
-| 别名 | 完整命令 | 说明 |
-|------|----------|------|
-| `csm` | `claude-switch-model` | 切换模型 |
-| `clm` | `claude-list-models` | 列出模型 |
-| `cst` | `claude-set-token` | 设置 Token |
+---
 
 ## 卸载
 
-### macOS / Linux
-
-1. 编辑 `~/.zshrc` 或 `~/.bashrc`
-2. 删除以下标记之间的内容：
-   ```bash
-   # Claude 模型切换器 - 开始
-   ... 删除这部分 ...
-   # Claude 模型切换器 - 结束
-   ```
-3. 删除安装目录：
-   ```bash
-   rm -rf ~/.claude-switch-model
-   ```
-
-### Windows
-
-1. 编辑 PowerShell 配置文件：
-   ```powershell
-   notepad $PROFILE
-   ```
-2. 删除 `# Claude 模型切换器 - 开始` 和 `# Claude 模型切换器 - 结束` 之间的内容
-3. 删除安装目录：
-   ```powershell
-   Remove-Item -Recurse -Force "$env:USERPROFILE\.claude-switch-model"
-   ```
-
-## 开发
-
-### 运行测试
-
-**Bash 测试 (macOS/Linux):**
-
 ```bash
-# 安装 bats
-brew install bats-core  # macOS
-# 或
-sudo apt-get install bats  # Ubuntu
-
-# 运行测试
-bats tests/test_install.bats
-bats tests/test_switch_model.bats
+claude-switcher --uninstall
 ```
 
-**PowerShell 测试 (Windows):**
+执行后会提示：
+- 从 shell rc 文件中移除 source 配置
+- 是否同时删除 `~/.claude-switcher/` 配置目录（默认：是）
+
+---
+
+## 开发与测试
+
+```bash
+# 运行 Unix 测试（需要 bats-core）
+bats tests/test_install.bats
+bats tests/test_switcher.bats
+```
 
 ```powershell
-# 安装 Pester
+# 运行 Windows 测试（需要 Pester）
 Install-Module -Name Pester -Force -Scope CurrentUser
-
-# 运行测试
 Invoke-Pester -Path tests/
 ```
 
-### 项目结构
-
-```
-claude-model-switch/
-├── unix/                        # macOS / Linux 脚本
-│   ├── install.sh               # 安装脚本
-│   └── claude-switch-model.sh   # 函数定义
-├── windows/                     # Windows 脚本
-│   ├── install.ps1              # 安装脚本
-│   └── claude-switch-model.ps1  # 函数定义
-├── tests/                       # 测试文件
-│   ├── test_install.bats        # Bash 安装测试
-│   ├── test_switch_model.bats   # Bash 功能测试
-│   ├── test_install.ps1         # PowerShell 安装测试
-│   └── test_switch_model.ps1    # PowerShell 功能测试
-├── .github/
-│   └── workflows/
-│       └── test.yml             # GitHub Actions 测试工作流
-└── README.md
-```
-
-## 许可证
-
-MIT License
+CI 在 push / PR 时自动运行：macOS、Ubuntu 的 bats 测试，Windows 的 Pester 测试，以及所有脚本的语法检查。
