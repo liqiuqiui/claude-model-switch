@@ -54,7 +54,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           mkdir -p coverage
-          kcov coverage bats tests/test_switcher.bats
+          kcov coverage bats tests/unix/test_switcher.bats
 
       - name: 上传覆盖率报告
         if: matrix.os == 'macos-latest'
@@ -93,16 +93,6 @@ jobs:
           $configuration.CodeCoverage.Enabled = $true
           $configuration.CodeCoverage.Path = "windows/*.ps1"
           $configuration.CodeCoverage.OutputPath = "coverage.xml"
-          Invoke-Pester -Configuration $configuration
-
-      - name: 运行新功能测试
-        shell: powershell
-        run: |
-          $configuration = New-PesterConfiguration
-          $configuration.Run.Path = "tests/windows/test_new_features.ps1"
-          $configuration.Output.Verbosity = "Detailed"
-          $configuration.TestResult.Enabled = $true
-          $configuration.TestResult.OutputPath = "test-results-new.xml"
           Invoke-Pester -Configuration $configuration
 
       - name: 上传测试结果
