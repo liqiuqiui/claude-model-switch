@@ -3,8 +3,8 @@
 # ============================================
 # 功能:
 #   - 在 macOS 和 Ubuntu 上运行 bats 测试
-#   - 在 Windows 上运行 Pester 测试
-#   - 生成并上传测试覆盖率报告
+#   - macOS 上额外生成 bash 覆盖率报告（kcov）
+#   - 在 Windows 上运行 Pester 测试（含覆盖率上传）
 # ============================================
 
 name: 测试
@@ -38,10 +38,10 @@ jobs:
       - name: 安装 bats
         run: |
           if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            brew install bats-core
+            brew install bats-core kcov
           else
-            sudo apt-get update
-            sudo apt-get install -y bats
+            # apt 版本过旧（1.2.x），不支持中文测试名，改用 npm 安装最新版
+            npm install -g bats
           fi
 
       - name: 运行 bats 测试
@@ -49,19 +49,14 @@ jobs:
           bats tests/test_install.bats
           bats tests/test_switch_model.bats
 
-      - name: 安装 kcov（用于覆盖率）
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get install -y kcov
-
       - name: 生成覆盖率报告
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest'
         run: |
           mkdir -p coverage
           kcov coverage bats tests/test_switch_model.bats
 
       - name: 上传覆盖率报告
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest'
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/*
