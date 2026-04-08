@@ -7,7 +7,7 @@
 # ============================================
 
 BeforeAll {
-    $ScriptDir     = Join-Path (Split-Path -Parent $PSScriptRoot) "windows"
+            $ScriptDir     = Join-Path $PSScriptRoot "../../windows"
     $InstallScript = Join-Path $ScriptDir "install.ps1"
     $SwitcherScript = Join-Path $ScriptDir "claude-switcher.ps1"
 

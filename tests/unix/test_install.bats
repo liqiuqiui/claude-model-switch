@@ -8,7 +8,7 @@ setup() {
     MOCK_HOME="$TEST_DIR/home"
     mkdir -p "$MOCK_HOME"
 
-    SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/../unix" && pwd)"
+    SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/../../unix" && pwd)"
 
     export HOME="$MOCK_HOME"
     export SHELL_RC="$MOCK_HOME/.zshrc"

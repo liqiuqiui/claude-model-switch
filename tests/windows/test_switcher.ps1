@@ -7,8 +7,8 @@
 # ============================================
 
 BeforeAll {
-    $ScriptDir    = Join-Path (Split-Path -Parent $PSScriptRoot) "windows"
-    $SwitcherScript = Join-Path $ScriptDir "claude-switcher.ps1"
+            $ScriptDir    = Join-Path $PSScriptRoot "../../windows"
+            $SwitcherScript = Join-Path $ScriptDir "claude-switcher.ps1"
 
     # 创建隔离的测试 HOME 目录
     $TestDir  = Join-Path $env:TEMP "claude-switcher-test-$(Get-Random)"

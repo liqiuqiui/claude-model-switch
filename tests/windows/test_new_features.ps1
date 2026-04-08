@@ -15,7 +15,7 @@ Describe "Claude Switcher 新功能测试" {
 
         # 加载脚本
         $script:ScriptDir = Split-Path -Parent $PSScriptRoot
-        . "$script:ScriptDir/../windows/claude-switcher.ps1"
+        . "$script:ScriptDir/../../windows/claude-switcher.ps1"
     }
 
     AfterAll {
