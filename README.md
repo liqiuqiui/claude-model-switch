@@ -22,7 +22,7 @@
 ### macOS / Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/liqiuqiui/claude-model-switch/main/unix/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/liqiuqiui/claude-switcher/main/unix/install.sh | bash
 ```
 
 安装完成后按提示执行：
@@ -41,7 +41,7 @@ claude-switcher --use zhipu
 ### Windows（PowerShell）
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/liqiuqiui/claude-model-switch/main/windows/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/liqiuqiui/claude-switcher/main/windows/install.ps1 | iex
 ```
 
 安装完成后：

@@ -127,7 +127,5 @@ main() {
   echo -e "  运行 ${YELLOW}claude-switcher --help${NC} 查看所有可用命令。"
 }
 
-# 仅在直接执行时运行主流程，source 时只加载函数
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  main
-fi
+# 若被 source 则不执行主流程（兼容 curl | bash 管道执行）
+(return 0 2>/dev/null) || main
