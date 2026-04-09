@@ -36,13 +36,11 @@ NC='\033[0m'
 # ============================================
 
 detect_shell_rc() {
-  if [[ -n "$ZSH_VERSION" ]]; then
-    echo "$HOME/.zshrc"
-  elif [[ -n "$BASH_VERSION" ]]; then
-    echo "$HOME/.bashrc"
-  else
-    echo "$HOME/.profile"
-  fi
+  case "$SHELL" in
+    */zsh)  echo "$HOME/.zshrc" ;;
+    */bash) echo "$HOME/.bashrc" ;;
+    *)      echo "$HOME/.profile" ;;
+  esac
 }
 
 error_exit() {

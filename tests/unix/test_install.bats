@@ -26,8 +26,7 @@ teardown() {
 # ============================================
 
 @test "detect_zsh_config_path" {
-    export ZSH_VERSION="5.8"
-    unset BASH_VERSION
+    export SHELL="/bin/zsh"
 
     source "$SCRIPT_DIR/install.sh"
     result=$(detect_shell_rc)
@@ -36,8 +35,7 @@ teardown() {
 }
 
 @test "detect_bash_config_path" {
-    export BASH_VERSION="5.0"
-    unset ZSH_VERSION
+    export SHELL="/bin/bash"
 
     source "$SCRIPT_DIR/install.sh"
     result=$(detect_shell_rc)
@@ -46,8 +44,7 @@ teardown() {
 }
 
 @test "detect_unknown_shell_uses_profile" {
-    unset ZSH_VERSION
-    unset BASH_VERSION
+    export SHELL="/bin/fish"
 
     source "$SCRIPT_DIR/install.sh"
     result=$(detect_shell_rc)
